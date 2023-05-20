@@ -6,10 +6,10 @@ diff -ur ../vasp_5.4.4_source_original/src/constr_cell_relax.F ../vasp_5.4.4_fc/
  !-----------------------------------------------------------------------
  
 -      SUBROUTINE CONSTR_CELL_RELAX(FCELL)
-+      SUBROUTINE CONSTR_CELL_RELAX(FCELL,FIX_XY,FIX_Z)
++      SUBROUTINE CONSTR_CELL_RELAX(FCELL,LFIX_XY,LFIX_Z)
        USE prec
        REAL(q) FCELL(3,3)
-+      LOGICAL FIX_XY,FIX_Z
++      LOGICAL LFIX_XY,LFIX_Z
  
 -!     just one simple example
 -!     relaxation in x directions only
@@ -21,7 +21,7 @@ diff -ur ../vasp_5.4.4_source_original/src/constr_cell_relax.F ../vasp_5.4.4_fc/
 -!      FCELL=0   ! F90 style: set the whole array to zero
 -!      FCELL(3,3)=SAVE
 +      !SJ edit
-+      IF(FIX_XY) THEN
++      IF(LFIX_XY) THEN
 +            !     relaxation in z directions only (for independent z)
 +            SAVE=FCELL(3,3)
 +            FCELL=0   
@@ -29,7 +29,7 @@ diff -ur ../vasp_5.4.4_source_original/src/constr_cell_relax.F ../vasp_5.4.4_fc/
 +      ENDIF
 +
 +      !SJ edit
-+      IF(FIX_Z) THEN
++      IF(LFIX_Z) THEN
 +            !     relaxation in x,y directions only (for independent z)
 +            FCELL(3,1)=0
 +            FCELL(3,2)=0
@@ -195,7 +195,7 @@ diff -ur ../vasp_5.4.4_source_original/src/main.F ../vasp_5.4.4_fc/src/main.F
            INFO%LASPH,INFO%TURBO,INFO%IRESTART,INFO%NREBOOT,INFO%NMIN,INFO%EREF, &
 -          INFO%NLSPLINE,ISPECIAL,MDALGO &
 +          INFO%NLSPLINE,ISPECIAL,MDALGO, &
-+          T_INFO%FIX_XY,T_INFO%FIX_Z,T_INFO%FORCES_X,T_INFO%FORCES_Y,T_INFO%FORCES_Z,T_INFO%SCALING & !SJ
++          T_INFO%LFIX_XY,T_INFO%LFIX_Z,T_INFO%FORCES_X,T_INFO%FORCES_Y,T_INFO%FORCES_Z,T_INFO%SCALING & !SJ
  #ifdef libbeef
           ,LBEEFENS,LBEEFBAS &
  #endif
@@ -212,8 +212,8 @@ diff -ur ../vasp_5.4.4_source_original/src/main.F ../vasp_5.4.4_fc/src/main.F
        IF (IO%IU0>=0) WRITE(TIU0,*)'entering main loop'
  
 +      !SJ: log input
-+      IF (IO%IU0>1) WRITE(IU0,*)'fix xy:',T_INFO%FIX_XY
-+      IF (IO%IU0>1) WRITE(IU0,*)'fix z:',T_INFO%FIX_Z
++      IF (IO%IU0>1) WRITE(IU0,*)'fix xy:',T_INFO%LFIX_XY
++      IF (IO%IU0>1) WRITE(IU0,*)'fix z:',T_INFO%LFIX_Z
 +      IF (IO%IU0>1) WRITE(IU0,*)'forces x:',T_INFO%FORCES_X
 +      IF (IO%IU0>1) WRITE(IU0,*)'forces y:',T_INFO%FORCES_Y
 +      IF (IO%IU0>1) WRITE(IU0,*)'forces z:',T_INFO%FORCES_Z
@@ -239,7 +239,7 @@ diff -ur ../vasp_5.4.4_source_original/src/main.F ../vasp_5.4.4_fc/src/main.F
          ENDIF
  
 -        CALL CONSTR_CELL_RELAX(D2SIF)
-+        CALL CONSTR_CELL_RELAX(D2SIF,T_INFO%FIX_XY,T_INFO%FIX_Z)
++        CALL CONSTR_CELL_RELAX(D2SIF,T_INFO%LFIX_XY,T_INFO%LFIX_Z)
  
 -        IF (FACTSI/=0) THEN
 +        IF (FACTSI/=0) THEN ! /= means not equal to
@@ -254,8 +254,8 @@ diff -ur ../vasp_5.4.4_source_original/src/poscar.F ../vasp_5.4.4_fc/src/poscar.
          REAL(q), POINTER :: ZCT(:)    ! "charge transfer" charges for non-scf calculations
          REAL(q), POINTER :: RGAUS(:)  ! widths for Gaussian CT charge distributions
          CHARACTER (LEN=2), POINTER :: TYPE(:)  ! type information for each ion
-+        LOGICAL FIX_XY                ! SJ: fix lattice constant x and y
-+        LOGICAL FIX_Z                 ! SJ: fix lattice constant z
++        LOGICAL LFIX_XY                ! SJ: fix lattice constant x and y
++        LOGICAL LFIX_Z                 ! SJ: fix lattice constant z
 +        REAL(q), POINTER :: FORCES_X(:) ! SJ: Born effective charges of each atom
 +        REAL(q), POINTER :: FORCES_Y(:) ! SJ: Born effective charges of each atom
 +        REAL(q), POINTER :: FORCES_Z(:) ! SJ: Born effective charges of each atom
@@ -273,7 +273,7 @@ diff -ur ../vasp_5.4.4_source_original/src/reader.F ../vasp_5.4.4_fc/src/reader.
       &        LASPH,TURBO,IRESTART,NREBOOT,NMIN,EREF, &
 -     &        NLSPLINE,ISPECIAL,MDALGO &
 +     &        NLSPLINE,ISPECIAL,MDALGO, &
-+     &        FIX_XY,FIX_Z,FORCES_X,FORCES_Y,FORCES_Z,SCALING &  !SJ
++     &        LFIX_XY,LFIX_Z,FORCES_X,FORCES_Y,FORCES_Z,SCALING &  !SJ
  #ifdef libbeef
       &       ,LBEEFENS,LBEEFBAS &
  #endif
@@ -283,7 +283,7 @@ diff -ur ../vasp_5.4.4_source_original/src/reader.F ../vasp_5.4.4_fc/src/reader.
       &          LPLANE_WISE, &
 -     &          LASPH,INTERACTIVE,LORBITALREAL,LVCADER
 +     &          LASPH,INTERACTIVE,LORBITALREAL,LVCADER, &
-+     &          FIX_XY,FIX_Z !SJ edit
++     &          LFIX_XY,LFIX_Z !SJ edit
        DIMENSION POMASS(NTYPD),RWIGS(NTYPP), &
       &          ROPT(NTYPD),DARWIN_V(NTYPD),DARWIN_R(NTYPD),VCA(NTYPD)
 -      DIMENSION ATOMOM(*)
@@ -298,13 +298,13 @@ diff -ur ../vasp_5.4.4_source_original/src/reader.F ../vasp_5.4.4_fc/src/reader.
  
 +! SJ: FIX: FIX lattice constant
 +
-+      FIX_XY=.FALSE.
-+      CALL RDATAB(LOPEN,INCAR,IU5,'FIX_XY','=','#',';','L', &
-+     &            IDUM,RDUM,CDUM,FIX_XY,CHARAC,N,1,IERR)
++      LFIX_XY=.FALSE.
++      CALL RDATAB(LOPEN,INCAR,IU5,'LFIX_XY','=','#',';','L', &
++     &            IDUM,RDUM,CDUM,LFIX_XY,CHARAC,N,1,IERR)
 +
-+      FIX_Z=.FALSE.
-+      CALL RDATAB(LOPEN,INCAR,IU5,'FIX_Z','=','#',';','L', &
-+     &            IDUM,RDUM,CDUM,FIX_Z,CHARAC,N,1,IERR)
++      LFIX_Z=.FALSE.
++      CALL RDATAB(LOPEN,INCAR,IU5,'LFIX_Z','=','#',';','L', &
++     &            IDUM,RDUM,CDUM,LFIX_Z,CHARAC,N,1,IERR)
 +
 +! SJ: FORCES: Born effective charges of each atom
 +
