@@ -145,26 +145,6 @@ diff -ur ../vasp_5.4.4_source_original/src/dyna.F ../vasp_5.4.4_fc/src/dyna.F
        SUBROUTINE SET_SELECTED_VEL_ZERO(T_INFO,VEL,LATT_CUR)
        USE lattice
        USE poscar
-diff -ur ../vasp_5.4.4_source_original/src/dynbr.F ../vasp_5.4.4_fc/src/dynbr.F
---- ../vasp_5.4.4_source_original/src/dynbr.F	2021-12-03 10:49:14.555648000 -0600
-+++ ../vasp_5.4.4_fc/src/dynbr.F	2023-05-16 15:46:47.844454000 -0500
-@@ -161,6 +161,7 @@
- ! initial step:
-       G0    =STEP
-       NDIM=3*NIONS+9
-+     
-       
- ! call Broyden - and hope to have good luck ... :
-       MAXIT_=MAXIT             ! usually MAXIT_ = NSW+1
-@@ -170,6 +171,8 @@
-       ELSE
-          EMAX_ALLOWED=8
-       ENDIF
-+
-+
-       CALL BRZERO(NDIM,X,F,G0,INPRODUCT,MAXIT_,EMAX_ALLOWED,(ITER==1),IU6,IU0)
- 
- ! update the positions
 diff -ur ../vasp_5.4.4_source_original/src/main.F ../vasp_5.4.4_fc/src/main.F
 --- ../vasp_5.4.4_source_original/src/main.F	2021-12-03 10:49:16.718439000 -0600
 +++ ../vasp_5.4.4_fc/src/main.F	2023-05-16 15:49:01.822288000 -0500
