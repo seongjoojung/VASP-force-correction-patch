@@ -192,12 +192,12 @@ diff -ur ../vasp_5.4.4_source_original/src/main.F ../vasp_5.4.4_fc/src/main.F
        IF (IO%IU0>=0) WRITE(TIU0,*)'entering main loop'
  
 +      !SJ: log input
-+      IF (IO%IU0>1) WRITE(IU0,*)'fix xy:',T_INFO%LFIX_XY
-+      IF (IO%IU0>1) WRITE(IU0,*)'fix z:',T_INFO%LFIX_Z
-+      IF (IO%IU0>1) WRITE(IU0,*)'forces x:',T_INFO%FORCES_X
-+      IF (IO%IU0>1) WRITE(IU0,*)'forces y:',T_INFO%FORCES_Y
-+      IF (IO%IU0>1) WRITE(IU0,*)'forces z:',T_INFO%FORCES_Z
-+      IF (IO%IU0>1) WRITE(IU0,*)'scaling:',T_INFO%SCALING
++      IF (IO%IU0>1) WRITE(TIU0,*)'fix xy:',T_INFO%LFIX_XY
++      IF (IO%IU0>1) WRITE(TIU0,*)'fix z:',T_INFO%LFIX_Z
++      IF (IO%IU0>1) WRITE(TIU0,*)'forces x:',T_INFO%FORCES_X
++      IF (IO%IU0>1) WRITE(TIU0,*)'forces y:',T_INFO%FORCES_Y
++      IF (IO%IU0>1) WRITE(TIU0,*)'forces z:',T_INFO%FORCES_Z
++      IF (IO%IU0>1) WRITE(TIU0,*)'scaling:',T_INFO%SCALING
 +
        NSTEP = 0
        CALL START_TIMING("LOOP+")
