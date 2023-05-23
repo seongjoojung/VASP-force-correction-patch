@@ -1,7 +1,7 @@
 # VASP-force-correction-patch
 Force correction patch for VASP 5.4.4
 
-Installation: in the src folder,
+Installation: in the ```src``` folder,
 ```
 patch -i force_correction.patch
 ```
