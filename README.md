@@ -31,7 +31,7 @@ There are 6 new INCAR tags.
 `LFIX_Z`
 : Does not relax lattice constant c if set to `TRUE`. (independent z) Default is `FALSE`.
 
-## Symmetry is your enemy
+## :warning: **Symmetry is your enemy** :warning:
 
 It is recommended to set `ISYM` to 0, unless you have a very good idea of symmetry in your polarized system. Also, if you're trying to polarize non-polar structure, you have to either set `ISYM` to 0 or alter your POSCAR so that it is the same space group of the polarized structure.
 
