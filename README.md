@@ -23,7 +23,7 @@ There are 6 new INCAR tags.
 : Individual forces of ions in the z direction, in the order that appears in POSCAR. Corresponds to Born effective charges in constrained-forces calculation.
 
 `SCALING`
-: Sets the scaling parameter of forces. Corresponds to $-\mathcal{E}$ (electric field, V/$\mathrm{\AA}$) in constrained-forces calculation. Default is 0.
+: Sets the scaling parameter of forces. Corresponds to $-\mathcal{E}$ (electric field, V/$\textrm{\AA}$) in constrained-forces calculation. Default is 0.
 
 `LFIX_XY`
 : Does not relax lattice constants a and b if set to `TRUE`. (independent z) Default is `FALSE`.
