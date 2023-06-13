@@ -1,4 +1,4 @@
-# VASP-force-correction-patch
+# VASP Force Correction Patch
 Force correction patch for VASP 5.4.4
 
 ## Installation
@@ -7,29 +7,27 @@ Force correction patch for VASP 5.4.4
 patch -i "path_to_patch_file"/force_correction.patch
 ```
 
-
-
 ## How to use
 
 There are 6 new INCAR tags.
 
 `FORCES_X`
-: Individual forces of ions in the x direction, in the order that appears in POSCAR. Corresponds to Born effective charges in constrained-forces calculation.
+: Individual forces of ions in the x direction, in the order that appears in POSCAR. Corresponds to Born effective charge tensor component $Z^*_{\alpha x}$ in constrained-forces calculation, where the electric field direction is $\alpha$. Default is 0 for all ions.
 
 `FORCES_Y`
-: Individual forces of ions in the y direction, in the order that appears in POSCAR. Corresponds to Born effective charges in constrained-forces calculation.
+: Individual forces of ions in the y direction, in the order that appears in POSCAR. Corresponds to Born effective charge tensor component $Z^*_{\alpha y}$ in constrained-forces calculation, where the electric field direction is $\alpha$. Default is 0 for all ions.
 
 `FORCES_Z`
-: Individual forces of ions in the z direction, in the order that appears in POSCAR. Corresponds to Born effective charges in constrained-forces calculation.
+: Individual forces of ions in the z direction, in the order that appears in POSCAR. Corresponds to Born effective charge tensor component $Z^*_{\alpha z}$ in constrained-forces calculation, where the electric field direction is $\alpha$. Default is 0 for all ions.
 
 `SCALING`
 : Sets the scaling parameter of forces. Corresponds to $-\mathcal{E}$ (electric field, V/&#8491;) in constrained-forces calculation. Default is 0.
 
 `LFIX_XY`
-: Does not relax lattice constants a and b if set to `TRUE`. (independent z) Default is `FALSE`.
+: Does not relax lattice constants a and b if set to `TRUE`. (perpendicular z) Default is `FALSE`.
 
 `LFIX_Z`
-: Does not relax lattice constant c if set to `TRUE`. (independent z) Default is `FALSE`.
+: Does not relax lattice constant c if set to `TRUE`. (perpendicular z) Default is `FALSE`.
 
 ## :warning: **Symmetry is your enemy** :warning:
 
