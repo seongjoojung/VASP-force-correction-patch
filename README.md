@@ -9,7 +9,7 @@ patch -i "path_to_patch_file"/force_correction.patch
 
 ## How to use
 
-There are 6 new INCAR tags.
+There are 6 new INCAR tags from the patch.
 
 `FORCES_X`
 : Individual forces of ions in the x direction, in the order that appears in POSCAR. Corresponds to Born effective charge tensor component $Z^*_{\alpha x}$ in constrained-forces calculation, where the electric field direction is $\alpha$. Default is 0 for all ions.
@@ -29,15 +29,17 @@ There are 6 new INCAR tags.
 `LFIX_Z`
 : Does not relax lattice constant c if set to `TRUE`. (perpendicular z) Default is `FALSE`.
 
+Both `IBRION=1` and `IBRION=2` works, but if you're trying to converge to a saddle point, only `IBRION=1` works.
+
 ## :warning: **Symmetry is your enemy** :warning:
 
-It is recommended to set `ISYM` to 0, unless you have a very good idea of symmetry in your polarized system. Also, if you're trying to polarize non-polar structure, you have to either set `ISYM` to 0 or alter your POSCAR so that it is the same space group of the polarized structure.
+If you're trying to polarize your structure starting from non-polar one, you have to either set `ISYM` to 0 or alter your `POSCAR` so that it is the same space group of the polarized structure. In general, It is recommended to set `ISYM` to 0 to avoid internal of k-points, unless you have a good idea of symmetry in your polarized system.
 
 ## Papers to cite
 
-[Fu, H., & Bellaiche, L. (2003). Physical review letters, 91(5), 057601.](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.91.057601)
+[Fu, H., & Bellaiche, L. (2003) Physical review letters, 91(5), 057601.](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.91.057601)
 
-[Jung at el., (2023). ChemRvix](https://chemrxiv.org/engage/chemrxiv/article-details/63fd7308897b18336f3a59aa) (Paper under review)
+[Jung at el. (2023) ChemRvix](https://chemrxiv.org/engage/chemrxiv/article-details/63fd7308897b18336f3a59aa) (Paper under review)
 
 ## Disclaimer
 VASP is commercial package requiring a valid liscence for use.
