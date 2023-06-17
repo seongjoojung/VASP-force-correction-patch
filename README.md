@@ -35,6 +35,9 @@ Both `IBRION=1` and `IBRION=2` works, but if you're trying to converge to a sadd
 
 If you're trying to polarize your structure starting from non-polar one, you have to either set `ISYM` to 0 or alter your `POSCAR` so that it is the same space group of the polarized structure. In general, It is recommended to set `ISYM` to 0 to avoid internal symmetrization of k-points, unless you have a good idea of symmetry in your polarized system.
 
+## Tutorial
+[https://seongjoojung.github.io/posts/force-correction-tutorial/](https://seongjoojung.github.io/posts/force-correction-tutorial/)
+
 ## Papers to cite
 
 [Fu, H., & Bellaiche, L. (2003) Physical review letters, 91(5), 057601.](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.91.057601)
