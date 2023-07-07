@@ -38,13 +38,13 @@ If you're trying to polarize your structure starting from non-polar one, you hav
 ## Tutorial
 [https://seongjoojung.github.io/posts/force-correction-tutorial/](https://seongjoojung.github.io/posts/force-correction-tutorial/)
 
-## Papers to cite
+## Reference
 
 [Fu, H., & Bellaiche, L. (2003) *Physical review letters* 91(5), 057601.](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.91.057601)
 
 [Jung at el. (2023) *ChemRvix*](https://chemrxiv.org/engage/chemrxiv/article-details/63fd7308897b18336f3a59aa) (Paper under review)
 
-Also refer to: [Sai, Rabe & Vanderbilt (2002) *Phys. Rev. B* 66, 104108]
+[Sai, Rabe & Vanderbilt (2002) *Phys. Rev. B* 66, 104108](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.66.104108)
 
 ## Disclaimer
 VASP is commercial package requiring a valid liscence for use.
