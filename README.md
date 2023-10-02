@@ -31,7 +31,7 @@ There are 6 new INCAR tags from the patch.
 
 Both `IBRION=1` and `IBRION=2` works, but if you're trying to converge to a saddle point, only `IBRION=1` works.
 
-## :warning: **Symmetry is your enemy** :warning:
+## :warning: **Symmetry is your enemy!** :warning:
 
 If you're trying to polarize your structure starting from non-polar one, you have to either set `ISYM` to 0 or alter your `POSCAR` so that it is the same space group of the polarized structure. In general, It is recommended to set `ISYM` to 0 to avoid internal symmetrization of k-points, unless you have a good idea of symmetry in your polarized system.
 
