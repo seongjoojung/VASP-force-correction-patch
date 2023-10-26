@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/642097811.svg)](https://zenodo.org/doi/10.5281/zenodo.10045190)
+
 # VASP Force Correction Patch
 Force correction patch for VASP 5.4.4
 
