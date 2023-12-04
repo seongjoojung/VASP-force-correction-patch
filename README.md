@@ -42,9 +42,9 @@ If you're trying to polarize your structure starting from non-polar one, you hav
 
 ## Reference
 
-[Fu, H., & Bellaiche, L. (2003) *Physical review letters* 91(5), 057601.](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.91.057601)
+[Fu, H., & Bellaiche, L. (2003) *Phys. Rev. lett.* 91(5), 057601.](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.91.057601)
 
-[Jung at el. (2023) *ChemRvix*](https://chemrxiv.org/engage/chemrxiv/article-details/63fd7308897b18336f3a59aa) (Paper under review)
+[Jung at el. (2023) *Nat. Comm.* 14, 7795](https://www.nature.com/articles/s41467-023-43641-0)
 
 [Sai, Rabe & Vanderbilt (2002) *Phys. Rev. B* 66, 104108](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.66.104108)
 
