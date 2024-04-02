@@ -26,10 +26,12 @@ There are 6 new INCAR tags from the patch.
 : Sets the scaling parameter of forces. Corresponds to $-\mathcal{E}$ (electric field, V/&#8491;) in constrained-forces calculation. Default is 0.
 
 `LFIX_XY`
-: Does not relax lattice constants a and b if set to `TRUE`. (perpendicular z) Default is `FALSE`.
+: Does not relax lattice vector a and b if set to `TRUE`. (perpendicular z) Default is `FALSE`.
 
 `LFIX_Z`
-: Does not relax lattice constant c if set to `TRUE`. (perpendicular z) Default is `FALSE`.
+: Does not relax lattice vector c if set to `TRUE`. (perpendicular z) Default is `FALSE`.
+
+There are 2 new INCAR tags for VASP 6 patch, `LFIX_XY_COL` and `LFIX_Z_COL`. [They fix Cartesian components of the lattice vector, instead of the vector themselves](https://seongjoojung.github.io/posts/update/).
 
 Both `IBRION=1` and `IBRION=2` works, but if you're trying to converge to a saddle point, only `IBRION=1` works.
 
