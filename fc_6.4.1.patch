@@ -1,0 +1,307 @@
+diff -crB VASP6.4.1_Source/vasp.6.4.1/src/constr_cell_relax.F vasp_6.4.1_fc/src/constr_cell_relax.F
+*** VASP6.4.1_Source/vasp.6.4.1/src/constr_cell_relax.F	Wed Apr  5 00:44:10 2023
+--- vasp_6.4.1_fc/src/constr_cell_relax.F	Wed Mar 13 22:22:41 2024
+***************
+*** 24,32 ****
+  !
+  !-----------------------------------------------------------------------
+  
+!       SUBROUTINE CONSTR_CELL_RELAX(FCELL)
+        USE prec
+        REAL(q) FCELL(3,3)
+  
+  !     just one simple example
+  !     relaxation in x directions only
+--- 24,38 ----
+  !
+  !-----------------------------------------------------------------------
+  
+! ! SJ
+! !  (1,1) | (2,1) | (3,1)
+! !  (1,2) | (2,2) | (3,2)
+! !  (1,3) | (2,3) | (3,3)
+! 
+!       SUBROUTINE CONSTR_CELL_RELAX(FCELL,LFIX_XY,LFIX_XY_COL,LFIX_Z,LFIX_Z_COL)
+        USE prec
+        REAL(q) FCELL(3,3)
++       LOGICAL LFIX_XY,LFIX_XY_COL,LFIX_Z,LFIX_Z_COL
+  
+  !     just one simple example
+  !     relaxation in x directions only
+***************
+*** 38,43 ****
+--- 44,87 ----
+  !      FCELL=0   ! F90 style: set the whole array to zero
+  !      FCELL(3,3)=SAVE
+  
++       !SJ edit
++       IF(LFIX_XY) THEN
++             !     relaxation in z directions only (for independent z)
++             FCELL(1,1)=0
++             FCELL(2,1)=0
++             FCELL(3,1)=0
++             FCELL(1,2)=0
++             FCELL(2,2)=0
++             FCELL(3,2)=0
++       ENDIF
++ 
++       !SJ edit
++       IF(LFIX_XY_COL) THEN
++             !     relaxation in z col directions only (for independent z)
++             FCELL(1,1)=0
++             FCELL(2,1)=0
++             FCELL(1,2)=0
++             FCELL(2,2)=0
++             FCELL(1,3)=0
++             FCELL(2,3)=0
++       ENDIF
++ 
++       !SJ edit
++       IF(LFIX_Z) THEN
++             !     relaxation in x,y directions only (for independent z)
++             FCELL(1,3)=0
++             FCELL(2,3)=0
++             FCELL(3,3)=0
++       ENDIF
++ 
++       !SJ edit
++       IF(LFIX_Z_COL) THEN
++             !     relaxation in x,y col directions only (for independent z)
++             FCELL(3,1)=0
++             FCELL(3,2)=0
++             FCELL(3,3)=0
++       ENDIF
++ 
+        RETURN
+        END SUBROUTINE
+  
+diff -crB VASP6.4.1_Source/vasp.6.4.1/src/dyna.F vasp_6.4.1_fc/src/dyna.F
+*** VASP6.4.1_Source/vasp.6.4.1/src/dyna.F	Wed Apr  5 00:44:10 2023
+--- vasp_6.4.1_fc/src/dyna.F	Mon Dec 11 22:45:21 2023
+***************
+*** 1227,1232 ****
+--- 1227,1272 ----
+        ENDIF
+        END SUBROUTINE
+  
++       !SJ: Subroutine-force correction
++       SUBROUTINE CORRECT_FORCES(IU0,T_INFO,VEL,TIFOR,LATT_CUR)
++       USE lattice
++       USE poscar
++       IMPLICIT NONE
++ 
++       INTEGER IU0
++       TYPE (latt)        LATT_CUR
++       TYPE (type_info)   T_INFO
++       REAL(q)  TIFOR(3,T_INFO%NIONS),VEL(3,T_INFO%NIONS)
++ ! local
++       INTEGER NI,M,NI_LOOP
++       REAL(q) VTMP(3,T_INFO%NIONS)
++ 
++ 
++       DO NI=1,T_INFO%NIONS !from 1st ion to last ion
++ !-----reset the selected force coordinates (warning: forces are
++ !     given in cartesian, selection is made in direct coordinates!):
++          DO M=1,3
++             VTMP(M,NI)=TIFOR(M,NI) !VTMP is initialized
++          ENDDO
++       ENDDO
++ 
++       IF (IU0>1) WRITE(IU0,*)'CARTESIAN F:', VTMP
++ 
++       DO NI=1,T_INFO%NIONS
++          VTMP(1,NI) = VTMP(1,NI) - T_INFO%FORCES_X(NI)*T_INFO%SCALING     !Restoring force
++          VTMP(2,NI) = VTMP(2,NI) - T_INFO%FORCES_Y(NI)*T_INFO%SCALING     !Restoring force
++          VTMP(3,NI) = VTMP(3,NI) - T_INFO%FORCES_Z(NI)*T_INFO%SCALING     !Restoring force
++       ENDDO
++ 
++       IF (IU0>1) WRITE(IU0,*)'CORRECTED F:', VTMP
++ 
++       DO NI=1,T_INFO%NIONS
++          DO M=1,3
++             TIFOR(M,NI)=VTMP(M,NI) !return forces
++          ENDDO
++       ENDDO
++ 
++       END SUBROUTINE
+  
+        SUBROUTINE SET_SELECTED_VEL_ZERO(T_INFO,VEL,LATT_CUR)
+        USE lattice
+diff -crB VASP6.4.1_Source/vasp.6.4.1/src/main.F vasp_6.4.1_fc/src/main.F
+*** VASP6.4.1_Source/vasp.6.4.1/src/main.F	Wed Apr  5 00:44:11 2023
+--- vasp_6.4.1_fc/src/main.F	Wed Mar 13 22:18:22 2024
+***************
+*** 622,627 ****
+--- 622,632 ----
+           WRITE(TIU6,*)'INCAR:'
+           WRITE(TIU6,'(a)') str(INCAR_F, INDENTATION=3)
+        ENDIF
++ 
++ !SJ edit
++ !Allocate Forces and scaling parameter
++       ALLOCATE(T_INFO%FORCES_X(NIOND),T_INFO%FORCES_Y(NIOND),T_INFO%FORCES_Z(NIOND))
++ 
+  !  first scan of POTCAR to get LDIM, LMDIM, LDIM2 ...
+        LDIM =16
+        LDIM2=(LDIM*(LDIM+1))/2
+***************
+*** 679,684 ****
+--- 684,690 ----
+            INFO%LASPH,INFO%TURBO,INFO%IRESTART,INFO%NREBOOT,INFO%NMIN,INFO%EREF, &
+            INFO%NLSPLINE,FFTW_PLAN_EFFORT, &
+            IO%LH5, IO%LWAVEH5, IO%LCHARGH5, IO%VELOCITY &
++          ,T_INFO%LFIX_XY,T_INFO%LFIX_XY_COL,T_INFO%LFIX_Z,T_INFO%LFIX_Z_COL,T_INFO%FORCES_X,T_INFO%FORCES_Y,T_INFO%FORCES_Z,T_INFO%SCALING & !SJ
+  #ifdef libbeef
+           ,LBEEFENS,LBEEFBAS &
+  #endif
+***************
+*** 3133,3138 ****
+--- 3139,3154 ----
+  
+        IF (IO%IU0>=0) WRITE(TIU0,*)'entering main loop'
+  
++       !SJ: log input
++       IF (IO%IU0>1) WRITE(TIU0,*)'fix xy:',T_INFO%LFIX_XY
++       IF (IO%IU0>1) WRITE(TIU0,*)'fix xy_col:',T_INFO%LFIX_XY_COL
++       IF (IO%IU0>1) WRITE(TIU0,*)'fix z:',T_INFO%LFIX_Z
++       IF (IO%IU0>1) WRITE(TIU0,*)'fix z_col:',T_INFO%LFIX_Z_COL
++       IF (IO%IU0>1) WRITE(TIU0,*)'forces x:',T_INFO%FORCES_X
++       IF (IO%IU0>1) WRITE(TIU0,*)'forces y:',T_INFO%FORCES_Y
++       IF (IO%IU0>1) WRITE(TIU0,*)'forces z:',T_INFO%FORCES_Z
++       IF (IO%IU0>1) WRITE(TIU0,*)'scaling:',T_INFO%SCALING
++ 
+        NSTEP = 0
+        CALL START_TIMING("LOOP+")
+  
+***************
+*** 3631,3636 ****
+--- 3647,3655 ----
+        IF (DYN%IBRION /=5 .AND. DYN%IBRION /=6 .AND. DYN%IBRION /=7 ) &
+           CALL SET_SELECTED_FORCES_ZERO(T_INFO,DYN%VEL,TIFOR,LATT_CUR)
+  
++       !SJ: force correction
++       CALL CORRECT_FORCES(IO%IU0,T_INFO,DYN%VEL,TIFOR,LATT_CUR)
++ 
+        EKIN=0
+        EKIN_LAT=0
+        TEIN=0
+***************
+*** 4124,4130 ****
+             ENDDO
+          ENDIF
+  
+!         CALL CONSTR_CELL_RELAX(D2SIF)
+  
+          IF (FACTSI/=0) THEN
+             DO I=1,3
+--- 4143,4149 ----
+             ENDDO
+          ENDIF
+  
+!         CALL CONSTR_CELL_RELAX(D2SIF,T_INFO%LFIX_XY,T_INFO%LFIX_XY_COL,T_INFO%LFIX_Z,T_INFO%LFIX_Z_COL) !SJ
+  
+          IF (FACTSI/=0) THEN
+             DO I=1,3
+diff -crB VASP6.4.1_Source/vasp.6.4.1/src/poscar_struct.F vasp_6.4.1_fc/src/poscar_struct.F
+*** VASP6.4.1_Source/vasp.6.4.1/src/poscar_struct.F	Wed Apr  5 00:44:11 2023
+--- vasp_6.4.1_fc/src/poscar_struct.F	Wed Mar 13 22:15:42 2024
+***************
+*** 37,42 ****
+--- 37,50 ----
+          CHARACTER (LEN=64), POINTER :: SHA256(:) => NULL() !< type information for each ion
+          CHARACTER (LEN=20), POINTER :: TYPEF(:)  => NULL() !< full potential type information
+  #endif
++         LOGICAL LFIX_XY                ! SJ: fix lattice constant x and y
++         LOGICAL LFIX_XY_COL            ! SJ: fix lattice constant x and y
++         LOGICAL LFIX_Z                 ! SJ: fix lattice constant z
++         LOGICAL LFIX_Z_COL              ! SJ: fix lattice constant z
++         REAL(q), POINTER :: FORCES_X(:) ! SJ: Born effective charges of each atom
++         REAL(q), POINTER :: FORCES_Y(:) ! SJ: Born effective charges of each atom
++         REAL(q), POINTER :: FORCES_Z(:) ! SJ: Born effective charges of each atom
++         REAL(q) SCALING               ! SJ: scaling parameter to force correction
+        END TYPE
+  
+  
+diff -crB VASP6.4.1_Source/vasp.6.4.1/src/reader.F vasp_6.4.1_fc/src/reader.F
+*** VASP6.4.1_Source/vasp.6.4.1/src/reader.F	Wed Apr  5 00:44:11 2023
+--- vasp_6.4.1_fc/src/reader.F	Wed Mar 13 22:38:16 2024
+***************
+*** 22,27 ****
+--- 22,28 ----
+       &        LASPH,TURBO,IRESTART,NREBOOT,NMIN,EREF, &
+       &        NLSPLINE,FFTW_PLAN_EFFORT, &
+       &        LH5,LWAVEH5,LCHARGH5,VELOCITY &
++      &       ,LFIX_XY,LFIX_XY_COL,LFIX_Z,LFIX_Z_COL,FORCES_X,FORCES_Y,FORCES_Z,SCALING &  !SJ
+  #ifdef libbeef
+       &       ,LBEEFENS,LBEEFBAS &
+  #endif
+***************
+*** 67,76 ****
+       &          LBEEFENS,LBEEFBAS, &
+       &          LPLANE_WISE, &
+       &          LASPH,INTERACTIVE,LORBITALREAL,LVCADER, &
+!      &          LCONT, LH5, LWAVEH5, LCHARGH5, VELOCITY
+        DIMENSION POMASS(NTYPD),RWIGS(NTYPP), &
+       &          ROPT(NTYPD),DARWIN_V(NTYPD),DARWIN_R(NTYPD),VCA(NTYPD)
+!       DIMENSION ATOMOM(3*NIOND)
+        REAL(q)   SAXIS(3)
+        REAL(q)   NELECT,NUP_DOWN
+        REAL(q)   STM(7)
+--- 68,79 ----
+       &          LBEEFENS,LBEEFBAS, &
+       &          LPLANE_WISE, &
+       &          LASPH,INTERACTIVE,LORBITALREAL,LVCADER, &
+!      &          LCONT, LH5, LWAVEH5, LCHARGH5, VELOCITY &
+!      &         ,LFIX_XY,LFIX_XY_COL,LFIX_Z,LFIX_Z_COL !SJ edit
+        DIMENSION POMASS(NTYPD),RWIGS(NTYPP), &
+       &          ROPT(NTYPD),DARWIN_V(NTYPD),DARWIN_R(NTYPD),VCA(NTYPD)
+!       DIMENSION ATOMOM(3*NIOND),FORCES_X(NIONS),FORCES_Y(NIONS),FORCES_Z(NIONS) !SJ edit
+!       REAL(q)   SCALING !SJ edit
+        REAL(q)   SAXIS(3)
+        REAL(q)   NELECT,NUP_DOWN
+        REAL(q)   STM(7)
+***************
+*** 541,546 ****
+--- 544,585 ----
+              &this magnetic setup is desired.")
+        END IF
+  
++ ! SJ: FIX: FIX lattice constant
++ 
++       LFIX_XY=.FALSE.
++       CALL PROCESS_INCAR(LOPEN, IU0, IU5, 'LFIX_XY', LFIX_XY, IERR, WRITEXMLINCAR)     
++ 
++       LFIX_XY_COL=.FALSE.
++       CALL PROCESS_INCAR(LOPEN, IU0, IU5, 'LFIX_XY_COL', LFIX_XY_COL, IERR, WRITEXMLINCAR)
++ 
++       LFIX_Z=.FALSE.
++       CALL PROCESS_INCAR(LOPEN, IU0, IU5, 'LFIX_Z', LFIX_Z, IERR, WRITEXMLINCAR)
++  
++       LFIX_Z_COL=.FALSE.
++       CALL PROCESS_INCAR(LOPEN, IU0, IU5, 'LFIX_Z_COL', LFIX_Z_COL, IERR, WRITEXMLINCAR)     
++ 
++ ! SJ: FORCES: Born effective charges of each atom
++ 
++       DO NI=1,NIONS
++             FORCES_X(NI)=0
++       ENDDO
++       CALL PROCESS_INCAR(LOPEN, IU0, IU5, 'FORCES_X', FORCES_X, NIONS, IERR, WRITEXMLINCAR)
++ 
++       DO NI=1,NIONS
++             FORCES_Y(NI)=0
++       ENDDO
++       CALL PROCESS_INCAR(LOPEN, IU0, IU5, 'FORCES_Y', FORCES_Y, NIONS, IERR, WRITEXMLINCAR)
++ 
++       DO NI=1,NIONS
++             FORCES_Z(NI)=0
++       ENDDO
++       CALL PROCESS_INCAR(LOPEN, IU0, IU5, 'FORCES_Z', FORCES_Z, NIONS, IERR, WRITEXMLINCAR)
++ 
++ ! SJ: SCALING: Scaling parameter to force correction
++ 
++       SCALING=0._q
++       CALL PROCESS_INCAR(LOPEN, IU0, IU5, 'SCALING', SCALING, IERR, WRITEXMLINCAR)
++ 
+  ! number of electrons ..., default is NELECT=0 (= neutral cell)
+        NELECT=0._q
+        CALL PROCESS_INCAR(LOPEN, IU0, IU5, 'NELECT', NELECT, IERR, WRITEXMLINCAR)
