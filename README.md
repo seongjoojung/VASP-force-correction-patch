@@ -31,7 +31,7 @@ There are 6 new INCAR tags from the patch.
 `LFIX_Z`
 : Does not relax lattice vector c if set to `TRUE`. (perpendicular z) Default is `FALSE`.
 
-There are 2 new INCAR tags for VASP 6 patch, `LFIX_XY_COL` and `LFIX_Z_COL`. [They fix Cartesian components of the lattice vector, instead of the vector themselves](https://seongjoojung.github.io/posts/update/).
+There are 3 new INCAR tags for VASP 6 patch, `LFIX_XY_COL`, `LFIX_Z_COL` and `LFIX_XY_TOT`. [They fix Cartesian components of the lattice vector, instead of the vector themselves](https://seongjoojung.github.io/posts/update/).
 
 Both `IBRION=1` and `IBRION=2` works, but if you're trying to converge to a saddle point, only `IBRION=1` works.
 
