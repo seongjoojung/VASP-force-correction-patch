@@ -35,6 +35,8 @@ There are 3 new INCAR tags for VASP 6 patch, `LFIX_XY_COL`, `LFIX_Z_COL` and `LF
 
 Both `IBRION=1` and `IBRION=2` works, but if you're trying to converge to a saddle point, only `IBRION=1` works.
 
+This approximation is only justified under low electric field or [high ionic contribution to permittivity](https://seongjoojung.github.io/posts/nmc-mos-icd/). Good estimate is when absolute value of the ionic contribution to permittivity is over 10 times electronic contribution.
+
 ## :warning: **Symmetry is your enemy!** :warning:
 
 If you're trying to polarize your structure starting from non-polar one, you have to either set `ISYM` to 0 or alter your `POSCAR` so that it is the same space group of the polarized structure. In general, It is recommended to set `ISYM` to 0 to avoid internal symmetrization of k-points, unless you have a good idea of symmetry in your polarized system.
